@@ -10,6 +10,7 @@ FROM nginx:1.27-alpine AS production
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # ใส่ nginx template + entrypoint
+COPY nginx/logging.conf /etc/nginx/conf.d/00-logging.conf
 COPY nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh

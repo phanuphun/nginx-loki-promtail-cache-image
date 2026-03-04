@@ -1,6 +1,3 @@
-# =========================
-# 1) ตั้งค่า "ที่เก็บ cache" บนดิสก์
-# =========================
 proxy_cache_path /var/cache/nginx/images
   levels=1:2
   keys_zone=imgcache:50m
@@ -11,13 +8,11 @@ proxy_cache_path /var/cache/nginx/images
 server {
   listen 80;
 
-  # =========================
-  # 2) Serve ไฟล์เว็บ (Vue dist)
-  # =========================
   root /usr/share/nginx/html;
   index index.html;
 
-  # SPA routing: ถ้าไม่เจอไฟล์จริง ให้กลับไป index.html
+  access_log off;
+
   location / {
     try_files $uri $uri/ /index.html;
   }
@@ -49,5 +44,7 @@ server {
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+    access_log /var/log/nginx/images_access.log img_vend;
   }
 }
