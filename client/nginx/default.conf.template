@@ -1,0 +1,53 @@
+# =========================
+# 1) ตั้งค่า "ที่เก็บ cache" บนดิสก์
+# =========================
+proxy_cache_path /var/cache/nginx/images
+  levels=1:2
+  keys_zone=imgcache:50m
+  max_size=5g
+  inactive=7d
+  use_temp_path=off;
+
+server {
+  listen 80;
+
+  # =========================
+  # 2) Serve ไฟล์เว็บ (Vue dist)
+  # =========================
+  root /usr/share/nginx/html;
+  index index.html;
+
+  # SPA routing: ถ้าไม่เจอไฟล์จริง ให้กลับไป index.html
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_pass ${KONG_URL}/img-server-test/api/;
+    proxy_set_header X-Vending-Code ${VENDING_CODE};
+    proxy_set_header Host $proxy_host;
+  }
+
+  location /images/ {
+    proxy_pass ${KONG_URL}/img-server-test/images/;
+
+    proxy_cache imgcache;
+    proxy_cache_methods GET HEAD;
+
+    proxy_cache_key "$scheme$proxy_host$request_uri";  # << พิสูจน์ให้ HIT ก่อน
+    proxy_cache_valid 200 1h;
+
+    proxy_ignore_headers Cache-Control Expires Set-Cookie;
+    proxy_hide_header Set-Cookie;
+
+    proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+    proxy_cache_lock on;
+
+    proxy_set_header X-Vending-Code ${VENDING_CODE};
+    add_header X-Cache-Status $upstream_cache_status always;
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+  }
+}

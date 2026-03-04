@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
   res.status(200).json({ status: "ok", service: "image-server" });
 });
 
-app.get("/images", async (req, res) => {
+app.get("/api/images", async (req, res) => {
   try {
     const files = await fs.promises.readdir(imagesDir);
 
@@ -31,7 +31,7 @@ app.get("/images", async (req, res) => {
 
     const images = imageFiles.map((name) => ({
       name,
-      url: `${req.protocol}://${req.get("host")}/images/${encodeURIComponent(name)}`,
+      url: `/images/${encodeURIComponent(name)}`, // <= สำคัญ
     }));
 
     res.status(200).json(images);

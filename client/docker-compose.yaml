@@ -1,0 +1,11 @@
+version: "3.8"
+services: 
+  client:
+    build: .
+    ports:
+      - "8080:80"
+    environment:
+      - VITE_VENDING_CODE=VEDING20211564
+      - VITE_API_BASE=/api
+      - KONG_URL=http://10.0.1.220:20210
+      - VENDING_CODE=VEDING20211564

@@ -6,12 +6,14 @@ interface ResponseApi {
 }
 
 const vedingCode = import.meta.env.VITE_VENDING_CODE
-const api = import.meta.env.VITE_API
+const api = import.meta.env.VITE_API_BASE
 const imageData = ref<ResponseApi[]>([])
 
 const handleFetch = async () => {
   try {
-    const response = await fetch(api)
+    const response = await fetch(`${api}/images`, {
+      headers: { "X-Vending-Code": vedingCode }
+    })
     const data: ResponseApi[] = await response.json()
     imageData.value = data
     console.log(data)
